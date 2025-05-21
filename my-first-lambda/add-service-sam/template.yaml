@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  add-service-sam
+  Sample SAM Template for add-service-sam
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  AddServiceFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: add/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Sum:
+          Type: HttpApi
+          Properties:
+            Path: /sum
+            Method: get
+            ApiId: !Ref HttpApi
+          
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: "$default"
+
+
+
+Outputs:
+  AddServiceFunction:
+    Description: "Add Service Lambda Function ARN"
+    Value: !GetAtt AddServiceFunction.Arn
+  AddServiceFunctionIamRole:
+    Description: "Implicit IAM Role created for Add Service function"
+    Value: !GetAtt AddServiceFunction.Arn
+  HttpApiUrl:
+    Description: URL of your API endpoint
+    Value:
+      Fn::Sub: 'https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
